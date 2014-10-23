@@ -14,9 +14,44 @@ apt-get install fish
 chsh -s /usr/bin/fish
 
 # Delete old config files and put new ones instead
-#rm .config/terminator/config 2> /dev/null
-#rm .config/fish/config.fish 2> /dev/null
-# [TODO] Fetch files and paste them where they belong
-# Get terminator config file
+rm .config/terminator/config 2> /dev/null
+rm .config/fish/config.fish 2> /dev/null
+
+# Add terminator config file
+echo '[global_config]
+  geometry_hinting = False
+  window_state = fullscreen
+  tab_position = hidden
+  handle_size = -2
+  borderless = True
+[profiles]
+  [[default]]
+    use_system_font = False
+    font = Monospace 11
+    scrollbar_position = hidden
+    show_titlebar = False
+    foreground_color = "#ffffff"
+[layouts]
+  [[default]]
+    [[[child1]]]
+      profile = default
+      type = Terminal
+      parent = window0
+    [[[window0]]]
+      type = Window
+      parent = ""
+[plugins]
+' > ~/.config/terminator/config
+
 # Get fish config.fish file
-# Get fish fish_prompt.fish file
+echo "echo # Makes emacs no window
+alias emacs='emacs -nw'
+
+# Aliases
+alias la='ls -la'
+alias ll='ls -l'
+" > ~/.config/fish/config.fish
+
+# Install prompt
+mkdir ~/.config/fish/functions
+wget -O ./.config/fish/functions/fish_prompt.fish https://raw.githubusercontent.com/bpinto/oh-my-fish/master/themes/integral/fish_prompt.fish
