@@ -5,11 +5,7 @@ aptitude update
 aptitude safe-upgrade
 
 # Install basics
-aptitude install git-core autoconf automake curl emacs24-nox
-
-# Install terminator (terminal emulator)
-aptitude install terminator
-
+aptitude install git-core autoconf automake curl emacs24-nox terminator
 
 # Install and use fish
 echo 'deb http://download.opensuse.org/repositories/shells:/fish:/release:/2/Debian_7.0/ /' >> /etc/apt/sources.list.d/fish.list
