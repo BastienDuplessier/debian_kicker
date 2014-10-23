@@ -11,7 +11,7 @@ aptitude install git-core autoconf automake curl emacs24-nox terminator
 echo 'deb http://download.opensuse.org/repositories/shells:/fish:/release:/2/Debian_7.0/ /' >> /etc/apt/sources.list.d/fish.list
 apt-get update
 apt-get install fish
-chsh -s /usr/bin/fish
+chsh -s /usr/bin/fish zangther
 
 # Delete old config files and put new ones instead
 rm .config/terminator/config 2> /dev/null
