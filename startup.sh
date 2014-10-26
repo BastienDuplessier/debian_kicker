@@ -55,3 +55,9 @@ alias ll='ls -l'
 # Install prompt
 mkdir ~/.config/fish/functions
 wget -O ./.config/fish/functions/fish_prompt.fish https://raw.githubusercontent.com/bpinto/oh-my-fish/master/themes/integral/fish_prompt.fish
+
+# Git config
+git config --global user.name "Bastien Duplessier"
+git config --global user.email "bastien.duplessier@gmail.com"
+git config --global color.ui true
+git config --global core.editor emacs
