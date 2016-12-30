@@ -1,0 +1,65 @@
+#! /bin/bash
+
+username ="zangther"
+cd "/home/$username"
+
+# Add fish to repo
+echo "deb http://download.opensuse.org/repositories/shells:/fish:/release:/2/Debian_8.0/ /" > /etc/apt/sources.list.d/fish.list 
+
+apt-get update
+apt-get safe-upgrade
+apt-get install -y git-core autoconf automake curl emacs24 terminator fish sudo make build-essential libssl-dev libreadline-dev zlib1g-dev silversearcher-ag
+chsh "$username" -s /usr/bin/fish
+adduser "$username" sudo
+
+git clone https://github.com/BastienDuplessier/home.git "/home/$username/homefiles"
+cp -r homefiles/.* ./
+rm -rf .git
+rm -rf homefiles/
+
+# Ruby
+git clone https://github.com/rbenv/rbenv.git .rbenv
+cd .rbenv
+src/configure
+make -C src
+cd "/home/$username"
+git clone https://github.com/rbenv/ruby-build.git .rbenv/plugins/ruby-build
+rbenv install 2.3.1
+.rbenv/shims/gem install bundler
+
+# HaXe
+echo "deb http://httpredir.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list
+echo "Package: *
+Pin: release a=unstable
+Pin-Priority: 100
+
+Package: haxe neko libneko*
+Pin: release a=unstable
+Pin-Priority: 999" > /etc/apt/preferences.d/haxe_unstable
+apt-get update
+apt-get install haxe -y
+mkdir haxelib
+haxelib setup haxelib
+haxelib install openfl
+haxelib run openfl setup
+haxelib install flixel
+haxelib install flixel-tools
+haxelib run flixel-tools setup
+chown "$username" haxelib/ -R
+
+# Erlang
+curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl
+chmod a+x kerl
+mv kerl /usr/bin/
+aptitude build-dep erlang
+kerl build 19.2 erl-19.2
+kerl install erl-19.2 erlang/versions/19.2
+echo "
+# Erlang
+. /home/$username/erlang/versions/19.2/activate.fish" >> .config/fish/config.fish
+git clone https://github.com/erlang/rebar3.git
+cd rebar3
+./bootstrap
+mv rebar3 /usr/bin
+cd ..
+rm -rf rebar3
