@@ -63,3 +63,8 @@ cd rebar3
 mv rebar3 /usr/bin
 cd ..
 rm -rf rebar3
+
+# SSH
+ssh-keygen -t rsa -b 4096 -C "zangther@gmail.com"
+xsel < .ssh/id_rsa.pub
+echo "SSH public key loaded into clipboard"
