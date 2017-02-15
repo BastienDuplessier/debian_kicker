@@ -1,0 +1,51 @@
+#!/bin/bash
+
+username="bastien"
+cd "/home/$username"
+
+# Homefiles
+git clone https://github.com/BastienDuplessier/home.git "/home/$username/homefiles"
+cd homefiles
+rm -rf .git
+cp -r .config ../
+cp -r .emacs.d ../
+cp .emacs ../
+cp .gitconfig ../
+cd "/home/$username"
+rm -rf homefiles/
+
+# Ruby
+git clone https://github.com/rbenv/rbenv.git .rbenv
+cd .rbenv
+src/configure
+make -C src
+git clone https://github.com/rbenv/ruby-build.git plugins/ruby-build
+bin/rbenv install 2.3.0
+.rbenv/shims/gem install bundler
+
+# HaXe
+mkdir haxelib
+haxelib setup haxelib
+haxelib install openfl
+haxelib run openfl setup
+haxelib install flixel
+haxelib install flixel-tools
+haxelib run flixel-tools setup
+
+# Erlang
+curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl
+chmod a+x kerl
+mv kerl /usr/bin/
+kerl build 19.2 erl-19.2
+kerl install erl-19.2 erlang/versions/19.2
+git clone https://github.com/erlang/rebar3.git
+cd rebar3
+./bootstrap
+mv rebar3 /usr/bin
+cd ..
+rm -rf rebar3
+
+# SSH
+ssh-keygen -t rsa -b 4096 -C "bastien@adomik.com"
+xsel < .ssh/id_rsa.pub
+echo "SSH public key loaded into clipboard"
