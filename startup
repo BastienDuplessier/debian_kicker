@@ -1,20 +1,56 @@
 #!/bin/bash
 
-username="bastien"
+echo "Type in username:"
+read username
+
+echo "Type in email:"
+read email
+
 cd "/home/$username"
 
 # Add fish to repo
+echo "Adding fish to sources and "
 echo "deb http://download.opensuse.org/repositories/shells:/fish:/release:/2/Debian_8.0/ /" > /etc/apt/sources.list.d/fish.list 
 wget http://download.opensuse.org/repositories/shells:fish:release:2/Debian_8.0/Release.key
 apt-key add - < Release.key
+rm Release.key
 
+echo "Updating packages"
 apt-get update
 apt-get upgrade
-apt-get install -y aptitude git autoconf automake curl emacs25 terminator fish sudo make build-essential libssl-dev libreadline-dev zlib1g-dev silversearcher-ag htop xsel acpi libssl1.0-dev
-chsh "$username" -s /usr/bin/fish
 
-# Build dep for Ruby
-aptitude install bison libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev
+echo "Installing basic packages"
+apt-get install -y aptitude git autoconf automake curl emacs25 terminator fish sudo make build-essential libreadline-dev zlib1g-dev silversearcher-ag htop xsel acpi
+
+echo "Change shell to fish"
+chsh "$username" -s /usr/bin/fish
+echo "Adding $username to sudo group"
+adduser "$username" sudo
+
+# Homefiles
+git clone https://github.com/BastienDuplessier/home.git "/home/$username/homefiles"
+cd homefiles
+rm -rf .git
+cp -r .config ../
+cp -r .emacs.d ../
+cp .emacs ../
+cp .gitconfig ../
+cd ..
+rm -rf homefiles/
+
+# Ruby
+echo "Installing ruby"
+apt-get install -yf bison libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev libssl1.0-dev
+git clone https://github.com/rbenv/rbenv.git .rbenv
+cd .rbenv
+src/configure
+make -C src
+git clone https://github.com/rbenv/ruby-build.git plugins/ruby-build
+bin/rbenv install 2.3.0
+. (rbenv init -|psub)
+gem install bundler
+cd ..
+chown bastien .rbenv -r
 
 # Install haxe
 echo "deb http://httpredir.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list
@@ -27,8 +63,32 @@ Pin: release a=unstable
 Pin-Priority: 999" > /etc/apt/preferences.d/haxe_unstable
 apt-get update
 apt-get install haxe -y
+mkdir haxelib
+haxelib setup haxelib
+haxelib install openfl
+haxelib run openfl setup
+haxelib install flixel
+haxelib install flixel-tools
+haxelib run flixel-tools setup
+chown bastien haxelib -r
 
 # Build dep for Erlang
 aptitude build-dep erlang -y
+curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl
+chmod a+x kerl
+chown bastien kerl
+mv kerl /usr/bin/
+kerl build 19.2 erl-19.2
+kerl install erl-19.2 erlang/versions/19.2
+git clone https://github.com/erlang/rebar3.git
+cd rebar3
+./bootstrap
+chown bastien rebar3
+mv rebar3 /usr/bin
+cd ..
+rm -rf rebar3
 
-adduser "$username" sudo
+# SSH
+ssh-keygen -t rsa -b 4096 -C "bastien@adomik.com"
+xsel -b < .ssh/id_rsa.pub
+echo "SSH public key loaded into clipboard"
